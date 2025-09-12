@@ -1,19 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
+@Entity('projects')
 export class Project {
-  @PrimaryGeneratedColumn() id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column() name: string;
+  @Column()
+  name: string;
 
-  @Column({ type: 'text', nullable: true }) description?: string;
-
-  @Column({ default: 'Planned' })
-  status: 'Planned' | 'In-Progress' | 'Blocked' | 'At-Risk' | 'Done';
-
-  @Column({ default: 'Med' })
-  priority: 'Low' | 'Med' | 'High';
-
-  @CreateDateColumn() createdAt: Date;
-  @UpdateDateColumn() updatedAt: Date;
+  @Column({ nullable: true })
+  description?: string;
 }

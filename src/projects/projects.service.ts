@@ -1,37 +1,34 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './project.entity';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectsService {
-  constructor(@InjectRepository(Project) private repo: Repository<Project>) {}
-
-  create(dto: CreateProjectDto) {
-    const entity = this.repo.create(dto);
-    return this.repo.save(entity);
-  }
+  constructor(
+    @InjectRepository(Project) private readonly repo: Repository<Project>, // 👈 FIX
+  ) {}
 
   findAll() {
     return this.repo.find();
   }
 
-  async findOne(id: number) {
-    const item = await this.repo.findOne({ where: { id } });
-    if (!item) throw new NotFoundException(`Project ${id} not found`);
-    return item;
+  findOne(id: number) {
+    return this.repo.findOne({ where: { id } });
   }
 
-  async update(id: number, dto: UpdateProjectDto) {
-    await this.repo.update(id, dto);
+  async create(data: Partial<Project>) {
+    const p = this.repo.create(data);
+    return this.repo.save(p);
+  }
+
+  async update(id: number, data: Partial<Project>) {
+    await this.repo.update(id, data);
     return this.findOne(id);
   }
 
   async remove(id: number) {
-    const res = await this.repo.delete(id);
-    if (!res.affected) throw new NotFoundException(`Project ${id} not found`);
+    await this.repo.delete(id);
     return { deleted: true };
   }
 }

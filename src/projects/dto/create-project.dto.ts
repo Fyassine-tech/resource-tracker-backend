@@ -1,23 +1,16 @@
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsIn } from 'class-validator';
 
 export class CreateProjectDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'Resource Tracker' })
   @IsString()
-  name: string;
+  @IsNotEmpty()
+  @MaxLength(120)
+  name!: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: 'Internal tooling to manage resources' })
   @IsString()
   @IsOptional()
+  @MaxLength(500)
   description?: string;
-
-  @ApiPropertyOptional({ enum: ['Planned','In-Progress','Blocked','At-Risk','Done'] })
-  @IsIn(['Planned','In-Progress','Blocked','At-Risk','Done'])
-  @IsOptional()
-  status?: 'Planned'|'In-Progress'|'Blocked'|'At-Risk'|'Done';
-
-  @ApiPropertyOptional({ enum: ['Low','Med','High'] })
-  @IsIn(['Low','Med','High'])
-  @IsOptional()
-  priority?: 'Low'|'Med'|'High';
 }
