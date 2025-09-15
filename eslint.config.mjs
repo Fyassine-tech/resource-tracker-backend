@@ -1,34 +1,35 @@
-// @ts-check
-import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import globals from 'globals';
+// eslint.config.mjs
+import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import prettier from 'eslint-plugin-prettier';
 
-export default tseslint.config(
+export default [
+  // Base JS rules
+  js.configs.recommended,
+
+  // TS rules (non type-checked to keep setup simple)
+  ...tseslint.configs.recommended,
+
+  // Project rules
   {
-    ignores: ['eslint.config.mjs'],
-  },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
-  {
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        ...globals.jest,
-      },
-      sourceType: 'commonjs',
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-  {
+    files: ['**/*.ts'],
+    ignores: ['dist/**'],
+    plugins: { prettier },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      'prettier/prettier': 'error',
     },
   },
-);
+
+  // Test overrides (relax noisy rules in specs)
+  {
+    files: ['**/*.spec.ts', '**/*.e2e-spec.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+];
