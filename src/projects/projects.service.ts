@@ -1,34 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Project } from './project.entity';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Project } from "./project.entity";
+import { CreateProjectDto } from "./dto/create-project.dto";
+import { UpdateProjectDto } from "./dto/update-project.dto";
 
 @Injectable()
 export class ProjectsService {
   constructor(
-    @InjectRepository(Project) private readonly repo: Repository<Project>, // 👈 FIX
+    @InjectRepository(Project)
+    private readonly repo: Repository<Project>,
   ) {}
 
-  findAll() {
+  async findAll(): Promise<Project[]> {
     return this.repo.find();
   }
 
-  findOne(id: number) {
+  async findOne(id: number): Promise<Project | null> {
     return this.repo.findOne({ where: { id } });
   }
 
-  async create(data: Partial<Project>) {
-    const p = this.repo.create(data);
-    return this.repo.save(p);
+  async create(dto: CreateProjectDto): Promise<Project> {
+    const entity = this.repo.create(dto);
+    return this.repo.save(entity);
   }
 
-  async update(id: number, data: Partial<Project>) {
-    await this.repo.update(id, data);
-    return this.findOne(id);
+  async update(id: number, dto: UpdateProjectDto): Promise<Project | null> {
+    const existing = await this.repo.findOne({ where: { id } });
+    if (!existing) return null;
+    const merged = this.repo.merge(existing, dto);
+    return this.repo.save(merged);
   }
 
-  async remove(id: number) {
-    await this.repo.delete(id);
-    return { deleted: true };
+  /**
+   * Returns true if a row was deleted; false otherwise.
+   */
+  async remove(id: number): Promise<boolean> {
+    const res = await this.repo.delete(id);
+    return (res.affected ?? 0) > 0;
   }
 }

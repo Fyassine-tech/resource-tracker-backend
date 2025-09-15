@@ -1,41 +1,95 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
-import { ProjectsService } from './projects.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  ParseIntPipe,
+  NotFoundException,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiBadRequestResponse,
+  ApiParam,
+} from "@nestjs/swagger";
+import { ProjectsService } from "./projects.service";
+import { CreateProjectDto } from "./dto/create-project.dto";
+import { UpdateProjectDto } from "./dto/update-project.dto";
+import { Project } from "./project.entity";
 
-@ApiTags('projects')
-@Controller('projects')
+@ApiTags("projects")
+@Controller("projects")
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    forbidNonWhitelisted: true,
+  }),
+)
 export class ProjectsController {
-  constructor(private readonly svc: ProjectsService) {}
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  @ApiOkResponse({ description: 'List all projects' })
-  list() {
-    return this.svc.findAll();
+  @ApiOperation({ summary: "List all projects" })
+  @ApiOkResponse({ description: "Array of projects", type: [Project] })
+  async findAll(): Promise<Project[]> {
+    return this.projectsService.findAll();
   }
 
-  @Get(':id')
-  @ApiOkResponse({ description: 'Get one project by id' })
-  get(@Param('id', ParseIntPipe) id: number) {
-    return this.svc.findOne(id);
+  @Get(":id")
+  @ApiOperation({ summary: "Get a project by id" })
+  @ApiParam({ name: "id", type: Number })
+  @ApiOkResponse({ description: "Project found", type: Project })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  async findOne(@Param("id", ParseIntPipe) id: number): Promise<Project> {
+    const project = await this.projectsService.findOne(id);
+    if (!project) throw new NotFoundException("Project not found");
+    return project;
   }
 
   @Post()
-  @ApiCreatedResponse({ description: 'Create a new project' })
-  create(@Body() dto: CreateProjectDto) {
-    return this.svc.create(dto);
+  @ApiOperation({ summary: "Create a project" })
+  @ApiCreatedResponse({ description: "Project created", type: Project })
+  @ApiBadRequestResponse({ description: "Validation failed" })
+  async create(@Body() dto: CreateProjectDto): Promise<Project> {
+    return this.projectsService.create(dto);
   }
 
-  @Patch(':id')
-  @ApiOkResponse({ description: 'Update a project' })
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProjectDto) {
-    return this.svc.update(id, dto);
+  @Patch(":id")
+  @ApiOperation({ summary: "Update a project" })
+  @ApiParam({ name: "id", type: Number })
+  @ApiOkResponse({ description: "Project updated", type: Project })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  async update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: UpdateProjectDto,
+  ): Promise<Project> {
+    const updated = await this.projectsService.update(id, dto);
+    if (!updated) throw new NotFoundException("Project not found");
+    return updated;
   }
 
-  @Delete(':id')
-  @ApiOkResponse({ description: 'Delete a project' })
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.svc.remove(id);
+  @Delete(":id")
+  @ApiOperation({ summary: "Delete a project" })
+  @ApiParam({ name: "id", type: Number })
+  @ApiOkResponse({
+    description: "Deletion result",
+    schema: { type: "object", properties: { deleted: { type: "boolean" } } },
+  })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  async remove(
+    @Param("id", ParseIntPipe) id: number,
+  ): Promise<{ deleted: boolean }> {
+    const deleted = await this.projectsService.remove(id); // boolean
+    if (!deleted) throw new NotFoundException("Project not found");
+    return { deleted };
   }
 }

@@ -1,3 +1,14 @@
+# Resource Tracker Backend
+
+![CI](https://github.com/Fyassine-tech/resource-tracker-backend/actions/workflows/ci.yml/badge.svg?branch=main)
+
+Backend service for tracking resources.  
+Built with NestJS, TypeORM, PostgreSQL, and Docker.
+
+## How to Run
+
+```bash
+docker compose up -d
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>

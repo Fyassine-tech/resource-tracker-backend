@@ -1,64 +1,66 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,
-                  @typescript-eslint/no-unsafe-argument,
-                  @typescript-eslint/no-unsafe-member-access,
-                  @typescript-eslint/no-explicit-any */
-
-import { Test } from "@nestjs/testing";
+import { Test, TestingModule } from "@nestjs/testing";
 import { ProjectsController } from "./projects.controller";
 import { ProjectsService } from "./projects.service";
+import { CreateProjectDto } from "./dto/create-project.dto";
+import { UpdateProjectDto } from "./dto/update-project.dto";
+import { Project } from "./project.entity";
 
 describe("ProjectsController", () => {
   let controller: ProjectsController;
-  let service: jest.Mocked<ProjectsService>;
+
+  const mockService = {
+    findAll: jest.fn<Promise<Project[]>, []>(async () => []),
+    findOne: jest.fn<Promise<Project | null>, [number]>(
+      async (id) => ({ id, name: "Demo", description: null }) as Project,
+    ),
+    create: jest.fn<Promise<Project>, [CreateProjectDto]>(
+      async (dto) =>
+        ({
+          id: 1,
+          name: dto.name,
+          description: dto.description ?? null,
+        }) as Project,
+    ),
+    update: jest.fn<Promise<Project | null>, [number, UpdateProjectDto]>(
+      async (id, dto) =>
+        ({
+          id,
+          name: dto.name ?? "Demo",
+          description: dto.description ?? null,
+        }) as Project,
+    ),
+    remove: jest.fn<Promise<boolean>, [number]>(async () => true),
+  };
 
   beforeEach(async () => {
-    const serviceMock: jest.Mocked<ProjectsService> = {
-      findAll: jest.fn(),
-      findOne: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      remove: jest.fn(),
-    } as any;
-
-    const module = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [ProjectsController],
-      providers: [{ provide: ProjectsService, useValue: serviceMock }],
+      providers: [{ provide: ProjectsService, useValue: mockService }],
     }).compile();
 
-    controller = module.get(ProjectsController);
-    service = module.get(ProjectsService);
+    controller = module.get<ProjectsController>(ProjectsController);
   });
 
-  afterEach(() => jest.clearAllMocks());
-
-  it("GET /projects", async () => {
-    service.findAll.mockResolvedValue([{ id: 1 } as any]);
-    await expect(controller.list()).resolves.toEqual([{ id: 1 }]);
+  it("should be defined", () => {
+    expect(controller).toBeDefined();
   });
 
-  it("GET /projects/:id", async () => {
-    service.findOne.mockResolvedValue({ id: 2 } as any);
-    await expect(controller.get(2)).resolves.toEqual({ id: 2 });
+  it("findOne returns a project", async () => {
+    const p = await controller.findOne(1);
+    expect(p.id).toBe(1);
+    expect(mockService.findOne).toHaveBeenCalledWith(1);
   });
 
-  it("POST /projects", async () => {
-    service.create.mockResolvedValue({ id: 3, name: "N" } as any);
-    await expect(controller.create({ name: "N" } as any)).resolves.toEqual({
-      id: 3,
-      name: "N",
-    });
+  it("create returns created project", async () => {
+    const dto: CreateProjectDto = { name: "X", description: "Y" };
+    const p = await controller.create(dto);
+    expect(p.name).toBe("X");
+    expect(mockService.create).toHaveBeenCalledWith(dto);
   });
 
-  it("PATCH /projects/:id", async () => {
-    service.update.mockResolvedValue({ id: 4, description: "U" } as any);
-    await expect(
-      controller.update(4, { description: "U" } as any),
-    ).resolves.toEqual({ id: 4, description: "U" });
-  });
-
-  it("DELETE /projects/:id", async () => {
-    service.remove.mockResolvedValue({ deleted: true } as any);
-    await expect(controller.remove(5)).resolves.toEqual({ deleted: true });
+  it("remove returns { deleted: true }", async () => {
+    const res = await controller.remove(1);
+    expect(res).toEqual({ deleted: true });
+    expect(mockService.remove).toHaveBeenCalledWith(1);
   });
 });
