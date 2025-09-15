@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:14
@@ -5,30 +7,27 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: resource_tracker
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d resource_tracker"]
       interval: 5s
-      timeout: 3s
-      retries: 10
+      timeout: 5s
+      retries: 20
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
   api:
-    build: .            # ← FIXED
+    build:
+      context: .
+      dockerfile: Dockerfile
     env_file:
       - .env.development
-    ports:
-      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+    ports:
+      - "3000:3000"
 
 volumes:
   db_data:
-
-name: resource-tracker
