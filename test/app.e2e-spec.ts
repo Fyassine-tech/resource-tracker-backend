@@ -1,17 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,
+                  @typescript-eslint/no-unsafe-argument,
+                  @typescript-eslint/no-unsafe-member-access,
+                  @typescript-eslint/no-unsafe-call,
+                  @typescript-eslint/no-unsafe-return,
+                  @typescript-eslint/no-explicit-any */
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { Server } from 'http';
 import request, { Response as SupertestResponse } from 'supertest';
 import { AppModule } from '../src/app.module';
-
-// If your e2e relies on a local DB container, set env here (optional):
-// beforeAll(() => {
-//   process.env.DATABASE_HOST = '127.0.0.1';
-//   process.env.DATABASE_PORT = '5432';
-//   process.env.DATABASE_USER = 'postgres';
-//   process.env.DATABASE_PASSWORD = 'postgres';
-//   process.env.DATABASE_NAME = 'resource_tracker';
-// });
 
 describe('App e2e', () => {
   let app: INestApplication;
