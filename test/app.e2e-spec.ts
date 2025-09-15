@@ -1,10 +1,12 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { INestApplication } from "@nestjs/common";
-import { Server } from "http";
-import request, { Response as SupertestResponse } from "supertest";
-import { AppModule } from "../src/app.module";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-explicit-any */
 
-describe("App e2e", () => {
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { Server } from 'http';
+import request, { Response as SupertestResponse } from 'supertest';
+import { AppModule } from '../src/app.module';
+
+describe('App e2e', () => {
   let app: INestApplication;
   let server: Server;
 
@@ -22,9 +24,9 @@ describe("App e2e", () => {
     await app?.close();
   });
 
-  it("health works", async () => {
-    const res: SupertestResponse = await request(server).get("/health"); // no chaining
+  it('health works', async () => {
+    const res: SupertestResponse = await request(server).get('/health'); // no chaining
     expect(res.status).toBe(200);
-    expect((res.body as any).status).toBe("ok");
+    expect((res.body as any).status).toBe('ok');
   });
 });

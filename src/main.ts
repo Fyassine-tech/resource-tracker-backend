@@ -20,4 +20,5 @@ async function bootstrap() {
   // Health is at /health; projects at /projects
   await app.listen(3000, "0.0.0.0");
 }
-void bootstrap();
+void bootstrap(); // silences no-floating-promises (warning is OK)
+
