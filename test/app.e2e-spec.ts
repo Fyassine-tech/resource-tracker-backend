@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { Server } from 'http';
-import request from 'supertest';            // ✅ default import (callable)
-import { AppModule } from '../src/app.module';
+import { Test, TestingModule } from "@nestjs/testing";
+import { INestApplication } from "@nestjs/common";
+import { Server } from "http";
+import request from "supertest"; // ✅ default import (callable)
+import { AppModule } from "../src/app.module";
 
-describe('App e2e', () => {
+describe("App e2e", () => {
   let app: INestApplication;
   let server: Server;
 
@@ -22,9 +22,10 @@ describe('App e2e', () => {
     await app.close();
   });
 
-  it('health works', async () => {
-    const res = await request(server).get('/health');
+  it("health works", async () => {
+    const res = await request(server).get("/health");
     expect(res.status).toBe(200);
-    expect(res.body.status).toBe('ok');
+    const body: { status: string } = res.body as { status: string };
+    expect(body.status).toBe("ok");
   });
 });

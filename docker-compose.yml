@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:14
@@ -7,27 +5,17 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: resource_tracker
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d resource_tracker"]
       interval: 5s
       timeout: 5s
       retries: 20
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env.development
+    build: .
+    env_file: [.env.development]
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "3000:3000"
-
-volumes:
-  db_data:
+    ports: ["3000:3000"]
