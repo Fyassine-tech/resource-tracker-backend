@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",              /* Force CJS for Jest */
+    "moduleResolution": "node",
+    "types": ["jest", "node"],
+    "isolatedModules": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
