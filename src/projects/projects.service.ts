@@ -1,34 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Project } from './project.entity';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Project } from "./project.entity";
 
 @Injectable()
 export class ProjectsService {
   constructor(
-    @InjectRepository(Project) private readonly repo: Repository<Project>, // 👈 FIX
+    @InjectRepository(Project)
+    private projectsRepo: Repository<Project>,
   ) {}
 
-  findAll() {
-    return this.repo.find();
+  findAll(): Promise<Project[]> {
+    return this.projectsRepo.find();
   }
 
-  findOne(id: number) {
-    return this.repo.findOne({ where: { id } });
+  create(data: Partial<Project>): Promise<Project> {
+    const project = this.projectsRepo.create(data);
+    return this.projectsRepo.save(project);
   }
 
-  async create(data: Partial<Project>) {
-    const p = this.repo.create(data);
-    return this.repo.save(p);
-  }
-
-  async update(id: number, data: Partial<Project>) {
-    await this.repo.update(id, data);
-    return this.findOne(id);
-  }
-
-  async remove(id: number) {
-    await this.repo.delete(id);
+  async remove(id: number): Promise<{ deleted: boolean }> {
+    await this.projectsRepo.delete(id);
     return { deleted: true };
   }
 }

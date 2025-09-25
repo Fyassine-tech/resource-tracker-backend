@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity('projects')
+@Entity()
 export class Project {
   @PrimaryGeneratedColumn()
   id: number;
@@ -8,6 +8,6 @@ export class Project {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  description?: string;
+  @Column({ type: "text", nullable: true })
+  description: string | null;
 }

@@ -1,20 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+// main.ts
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// ...
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: ['http://localhost:5173','http://127.0.0.1:5173'], credentials: true });
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
-
-  const config = new DocumentBuilder()
-    .setTitle('Resource Tracker API')
-    .setVersion('1.0')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
-  await app.listen(3000);
+  await app.listen(3000, '0.0.0.0'); // <-- important
 }
 bootstrap();
