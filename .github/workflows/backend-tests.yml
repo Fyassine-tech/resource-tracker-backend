@@ -1,0 +1,47 @@
+name: backend-tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Only run when backend files or test config change (optional; remove 'paths' to run always)
+# paths:
+#   - "src/**"
+#   - "test/**"
+#   - "jest.config.ts"
+#   - "tsconfig.jest.json"
+#   - "package.json"
+#   - "package-lock.json"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests (CI mode with coverage)
+        run: npm run test:ci
+
+      - name: Upload coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: coverage/lcov-report
